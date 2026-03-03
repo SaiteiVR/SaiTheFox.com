@@ -249,26 +249,31 @@
         .keyboard {
             display: flex;
             flex-direction: column;
-            gap: 10px; /* Increased */
+            gap: 8px;
             align-items: center;
+            width: 100%; /* Force keyboard to stay inside container */
         }
 
         .keyrow {
             display: flex;
-            gap: 8px; /* Increased */
+            gap: 6px;
+            width: 100%; /* Use full available width */
+            justify-content: center;
         }
 
         .key {
-            min-width: 42px; /* Increased */
-            padding: 16px 12px; /* Increased */
-            border-radius: 12px;
+            flex: 1; /* Allow keys to shrink and grow dynamically */
+            max-width: 45px; /* Cap width on large screens */
+            min-width: 0; /* Crucial for allowing keys to shrink on tiny screens */
+            padding: 16px 0; /* Vertical padding only, horizontal handles itself */
+            border-radius: 10px;
             border: 2px solid transparent;
             background: var(--w-key-bg);
             color: var(--text-dark);
             font-weight: 800;
-            font-size: 1.1rem; /* Increased */
+            font-size: 1.1rem;
             font-family: inherit;
-            transition: transform 0.2s, border-color 0.2s; /* Removed background from CSS transition to allow flip animation */
+            transition: transform 0.2s, border-color 0.2s;
             user-select: none;
             box-shadow: 0 2px 5px rgba(0,0,0,0.05);
             transform-style: preserve-3d;
@@ -280,7 +285,12 @@
             border-color: var(--primary);
         }
 
-        .key.wide { min-width: 70px; font-size: 0.95rem; }
+        .key.wide { 
+            flex: 1.5; /* Enter/Del keys get 1.5x width of a standard key */
+            max-width: 65px; 
+            font-size: 0.9rem; 
+        }
+        
         .key.color-gray { background: var(--w-gray); color: white; border-color: var(--w-gray); }
         .key.color-yellow { background: var(--w-yellow); color: white; border-color: var(--w-yellow); }
         .key.color-green { background: var(--w-green); color: white; border-color: var(--w-green); }
