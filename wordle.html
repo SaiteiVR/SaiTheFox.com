@@ -1,0 +1,476 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Saitei's Den | Wordle</title>
+    <link rel="stylesheet" href="style.css">
+    <style>
+        /* --- WORDLE SPECIFIC THEME --- */
+        :root {
+            --w-green: #8bdc9e;  
+            --w-yellow: #f9d56e; 
+            --w-gray: #d4c5ce;   
+            --w-tile: var(--card-bg);
+            --w-border: var(--primary);
+        }
+
+        .wordle-container {
+            width: 100%;
+            max-width: 500px;
+            margin: 0 auto;
+            background: var(--card-bg);
+            padding: 2rem;
+            border-radius: var(--radius);
+            box-shadow: 0 10px 30px rgba(255, 106, 136, 0.1);
+            position: relative;
+            z-index: 10;
+        }
+
+        .w-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 1.5rem;
+            border-bottom: 2px solid var(--bg-color);
+            padding-bottom: 1rem;
+        }
+
+        .w-title h1 {
+            font-size: 1.8rem;
+            color: var(--secondary);
+            margin: 0;
+            line-height: 1;
+        }
+
+        .w-stats {
+            display: flex;
+            gap: 15px;
+            font-size: 0.85rem;
+            color: var(--text-light);
+            font-weight: bold;
+        }
+
+        .w-controls {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 1.5rem;
+            justify-content: center;
+        }
+
+        .w-controls select, .w-controls button {
+            background: var(--bg-color);
+            border: none;
+            color: var(--secondary);
+            padding: 8px 15px;
+            border-radius: 15px;
+            font-weight: bold;
+            font-family: inherit;
+            cursor: pointer;
+            transition: transform 0.2s, background 0.2s;
+        }
+
+        .w-controls button.primary {
+            background: var(--secondary);
+            color: white;
+        }
+
+        .w-controls button:hover, .w-controls select:hover {
+            transform: translateY(-2px);
+        }
+
+        /* --- BOARD --- */
+        .board {
+            display: grid;
+            grid-template-rows: repeat(6, 1fr);
+            gap: 8px;
+            max-width: 320px;
+            margin: 0 auto 20px;
+        }
+
+        .row {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 8px;
+        }
+
+        .tile {
+            width: 100%;
+            aspect-ratio: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 800;
+            font-size: 1.8rem;
+            background: var(--w-tile);
+            border: 2px solid var(--w-border);
+            border-radius: 12px;
+            color: var(--text-main);
+            text-transform: uppercase;
+            user-select: none;
+            transition: transform 0.3s;
+        }
+
+        .tile.filled { animation: pop .1s ease; }
+        @keyframes pop { from {transform: scale(.9)} to {transform: scale(1)} }
+        .tile.flip { transform: rotateX(90deg); }
+
+        /* --- KEYBOARD --- */
+        .keyboard {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            align-items: center;
+        }
+
+        .keyrow {
+            display: flex;
+            gap: 6px;
+        }
+
+        .key {
+            min-width: 35px;
+            padding: 12px 10px;
+            border-radius: 10px;
+            border: none;
+            background: var(--bg-color);
+            color: var(--text-main);
+            font-weight: bold;
+            font-family: inherit;
+            cursor: pointer;
+            transition: background 0.2s;
+            user-select: none;
+        }
+
+        .key.wide { min-width: 60px; font-size: 0.9rem; }
+        .key.color-gray { background: var(--w-gray); color: white; }
+        .key.color-yellow { background: var(--w-yellow); color: white; }
+        .key.color-green { background: var(--w-green); color: white; }
+
+        .message {
+            text-align: center;
+            height: 24px;
+            color: var(--secondary);
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="cursor-dot"></div>
+    <div class="cursor-chaser"><img src="" alt="Saitei"></div>
+    <div id="particles"></div>
+
+    <nav class="navbar">
+        <a href="index.html">Home</a>
+        <a href="portfolio.html">Portfolio</a>
+        <a href="interests.html">Interests</a>
+        <a href="socials.html">Socials</a>
+        <a href="typingtest.html">Typing Game</a>
+        <a href="wordle.html" class="active">(Not) Wordle</a>
+    </nav>
+
+    <section class="page-content">
+        <div class="wordle-container">
+            <div class="w-header">
+                <div class="w-title">
+                    <h1>Saitei's Wordle</h1>
+                </div>
+                <div class="w-stats">
+                    <span id="stat-games">G: 0</span>
+                    <span id="stat-wins">W: 0</span>
+                    <span id="stat-streak">🔥 0</span>
+                </div>
+            </div>
+
+            <div class="w-controls">
+                <select id="modeSelect">
+                    <option value="daily">Daily Word</option>
+                    <option value="random">Random Word</option>
+                </select>
+                <button id="newRandom" class="primary">New Game</button>
+            </div>
+
+            <div id="message" class="message"></div>
+            <div id="board" class="board"></div>
+            <div id="keyboard" class="keyboard"></div>
+        </div>
+    </section>
+
+    <script src="script.js"></script>
+
+    <script>
+        const WORD_LENGTH = 5;
+        const MAX_ROWS = 6;
+        const baseDate = new Date(2024,0,1); 
+
+        let mode = localStorage.getItem('mini_wordle_mode') || 'daily';
+        let solution = '';
+        let solutionId = '';
+        let grid = Array.from({length:MAX_ROWS},()=>Array(WORD_LENGTH).fill(''));
+        let currentRow = 0;
+        let currentCol = 0;
+        let isGameOver = false;
+        let stats = loadStats();
+
+        let WORDS = [];
+        let allowedSet = new Set();
+
+        const boardEl = document.getElementById('board');
+        const keyboardEl = document.getElementById('keyboard');
+        const modeSelect = document.getElementById('modeSelect');
+        const newRandomBtn = document.getElementById('newRandom');
+        const messageEl = document.getElementById('message');
+
+        (async function initializeGame() {
+            await loadWords();
+            if (WORDS.length > 0) {
+                modeSelect.value = mode;
+                initUI();
+                startGame(mode, false);
+            }
+        })();
+
+        async function loadWords() {
+            try {
+                const res = await fetch('Words.json', { cache: 'no-store' });
+                if (!res.ok) throw new Error('Failed to load words file.');
+
+                const data = await res.json();
+                WORDS = data.solutions.map(w => w.toLowerCase());
+                
+                const allowedArr = data.allowed ? data.allowed : data.solutions;
+                allowedSet = new Set(allowedArr.map(w => w.toLowerCase()));
+
+                if (!WORDS.length) throw new Error('No words found in JSON.');
+            } catch (err) {
+                console.error(err);
+                message('Failed to load words.json');
+            }
+        }
+
+        function initUI(){
+            updateStatsUI();
+            modeSelect.addEventListener('change', e=>{
+                mode = e.target.value;
+                localStorage.setItem('mini_wordle_mode', mode);
+                startGame(mode, true);
+            });
+            newRandomBtn.addEventListener('click', ()=> startGame('random', true));
+            window.addEventListener('keydown', onKeydown);
+        }
+
+        function startGame(requestedMode, forceNewRandom){
+            isGameOver = false;
+            currentRow = 0;
+            currentCol = 0;
+            grid = Array.from({length:MAX_ROWS},()=>Array(WORD_LENGTH).fill(''));
+            message('');
+            mode = requestedMode || mode;
+            modeSelect.value = mode;
+            
+            if(mode === 'daily'){
+                solutionId = getDateString(new Date());
+                solution = pickDaily();
+            } else {
+                solution = pickRandom();
+                solutionId = 'random_' + Date.now().toString(36);
+            }
+            renderBoard();
+            renderKeyboard();
+        }
+
+        function pickDaily(){
+            const today = new Date();
+            const days = Math.floor((Date.UTC(today.getFullYear(),today.getMonth(),today.getDate()) - Date.UTC(baseDate.getFullYear(),baseDate.getMonth(),baseDate.getDate())) / 86400000);
+            const idx = Math.abs(days) % WORDS.length;
+            return WORDS[idx];
+        }
+
+        function pickRandom(){
+            return WORDS[Math.floor(Math.random()*WORDS.length)];
+        }
+
+        function getDateString(d){
+            return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
+        }
+
+        function renderBoard(){
+            boardEl.innerHTML = '';
+            for(let r=0;r<MAX_ROWS;r++){
+                const row = document.createElement('div');
+                row.className='row';
+                for(let c=0;c<WORD_LENGTH;c++){
+                    const tile = document.createElement('div');
+                    tile.className='tile';
+                    const ch = grid[r][c] || '';
+                    tile.textContent = ch;
+                    
+                    if(r < currentRow){
+                        const guess = grid[r].join('');
+                        const colors = scoreGuess(guess, solution);
+                        tile.style.background = colors[c] === 'green' ? 'var(--w-green)' : colors[c] === 'yellow' ? 'var(--w-yellow)' : 'var(--w-gray)';
+                        tile.style.borderColor = tile.style.background;
+                        tile.style.color = 'white';
+                    }
+                    row.appendChild(tile);
+                }
+                boardEl.appendChild(row);
+            }
+        }
+
+        function renderKeyboard(){
+            const layout = ["qwertyuiop","asdfghjkl","zxcvbnm"];
+            keyboardEl.innerHTML = '';
+            layout.forEach((line, idx) => {
+                const row = document.createElement('div');
+                row.className='keyrow';
+                if(idx===2){
+                    const enter = makeKey('Enter', 'wide');
+                    enter.addEventListener('click', onEnter);
+                    row.appendChild(enter);
+                }
+                for(const ch of line){
+                    const key = makeKey(ch);
+                    key.addEventListener('click', ()=>onKey(ch));
+                    row.appendChild(key);
+                }
+                if(idx===2){
+                    const back = makeKey('Del', 'wide');
+                    back.addEventListener('click', onBackspace);
+                    row.appendChild(back);
+                }
+                keyboardEl.appendChild(row);
+            });
+            refreshKeyboardColors();
+        }
+
+        function makeKey(label, extraClass=''){
+            const k = document.createElement('button');
+            k.className = 'key ' + (extraClass||'');
+            k.textContent = label.toUpperCase();
+            k.dataset.key = label.toLowerCase();
+            return k;
+        }
+
+        function refreshKeyboardColors(){
+            const keyColors = {}; 
+            for(let r=0;r<currentRow;r++){
+                const guess = grid[r].join('');
+                const colors = scoreGuess(guess, solution);
+                for(let i=0;i<guess.length;i++){
+                    const ch = guess[i];
+                    const col = colors[i];
+                    if(keyColors[ch]==='green') continue;
+                    if(col==='green') keyColors[ch]='green';
+                    else if(col==='yellow') keyColors[ch] = keyColors[ch]==='green' ? 'green' : 'yellow';
+                    else if(!keyColors[ch]) keyColors[ch]='gray';
+                }
+            }
+            document.querySelectorAll('.key').forEach(k=>{
+                k.classList.remove('color-green','color-yellow','color-gray');
+                const ch = k.dataset.key;
+                if(keyColors[ch]) k.classList.add('color-'+keyColors[ch]);
+            });
+        }
+
+        function onKey(ch){
+            if(isGameOver) return;
+            if(currentCol < WORD_LENGTH){
+                grid[currentRow][currentCol] = ch;
+                currentCol++;
+                renderBoard();
+            }
+        }
+
+        function onBackspace(){
+            if(isGameOver) return;
+            if(currentCol>0){
+                currentCol--;
+                grid[currentRow][currentCol] = '';
+                renderBoard();
+            }
+        }
+
+        function onEnter(){
+            if(isGameOver) return;
+            const guess = grid[currentRow].join('');
+            if(guess.length !== WORD_LENGTH){
+                message('Not enough letters!');
+                return;
+            }
+            if(!allowedSet.has(guess)){
+                message('Word not in list!');
+                return;
+            }
+            
+            currentRow++;
+            currentCol = 0;
+            refreshKeyboardColors();
+            renderBoard();
+
+            if(guess === solution){
+                isGameOver = true;
+                message('You win! 🎉');
+                recordResult(true);
+            } else if(currentRow >= MAX_ROWS){
+                isGameOver = true;
+                message('Word was: ' + solution.toUpperCase());
+                recordResult(false);
+            }
+        }
+
+        function scoreGuess(guess, sol){
+            const res = Array(WORD_LENGTH).fill('gray');
+            const solChars = sol.split('');
+            for(let i=0;i<WORD_LENGTH;i++){
+                if(guess[i] === solChars[i]){
+                    res[i] = 'green';
+                    solChars[i] = null; 
+                }
+            }
+            for(let i=0;i<WORD_LENGTH;i++){
+                if(res[i] === 'green') continue;
+                const idx = solChars.indexOf(guess[i]);
+                if(idx !== -1){
+                    res[i] = 'yellow';
+                    solChars[idx] = null;
+                }
+            }
+            return res;
+        }
+
+        function onKeydown(e){
+            if(isGameOver) return;
+            if(e.key === 'Backspace') { onBackspace(); return; }
+            if(e.key === 'Enter') { onEnter(); return; }
+            const k = e.key.toLowerCase();
+            if(k.length === 1 && k >= 'a' && k <= 'z') onKey(k);
+        }
+
+        function message(text){
+            messageEl.textContent = text || '';
+            if(text) setTimeout(()=> { if(messageEl.textContent === text) messageEl.textContent=''; }, 2000);
+        }
+
+        function loadStats(){
+            try{ return JSON.parse(localStorage.getItem('saitei_wordle_stats')) || {games:0,wins:0,streak:0}; }
+            catch(e){ return {games:0,wins:0,streak:0}; }
+        }
+
+        function recordResult(win){
+            stats.games++;
+            if(win) { stats.wins++; stats.streak++; }
+            else { stats.streak = 0; }
+            localStorage.setItem('saitei_wordle_stats', JSON.stringify(stats));
+            updateStatsUI();
+        }
+
+        function updateStatsUI(){
+            document.getElementById('stat-games').textContent = 'G: ' + stats.games;
+            document.getElementById('stat-wins').textContent = 'W: ' + stats.wins;
+            document.getElementById('stat-streak').textContent = '🔥 ' + stats.streak;
+        }
+    </script>
+</body>
+</html>

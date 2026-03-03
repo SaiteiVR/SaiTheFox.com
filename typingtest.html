@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Saitei's Den | Typing Test</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="cursor-dot"></div>
+    <div class="cursor-chaser"><img src="" alt="Saitei"></div>
+    <div id="particles"></div>
+
+    <nav class="navbar">
+        <a href="index.html">Home</a>
+        <a href="portfolio.html">Portfolio</a>
+        <a href="interests.html">Interests</a>
+        <a href="socials.html">Socials</a>
+        <a href="typingtest.html" class="active">Typing Game</a>
+        <a href="wordle.html">(Not) Wordle</a>
+    </nav>
+
+    <section class="page-content typing-page">
+        <h2>Typing Test</h2>
+
+        <div class="typing-app">
+            <div class="typing-controls">
+                <select id="difficulty">
+                    <option value="easy">Easy</option>
+                    <option value="normal" selected>Normal</option>
+                    <option value="hard">Hard</option>
+                    <option value="chaos">Chaos</option>
+                    <option value="cursed">Cursed</option>
+                </select>
+
+                <select id="length">
+                    <option value="10">10 words</option>
+                    <option value="25">25 words</option>
+                    <option value="50" selected>50 words</option>
+                    <option value="100">100 words</option>
+                </select>
+
+                <select id="time">
+                    <option value="15">15s</option>
+                    <option value="30">30s</option>
+                    <option value="60" selected>60s</option>
+                    <option value="120">120s</option>
+                    <option value="180">180s</option>
+                    <option value="300">300s</option>
+                </select>
+
+                <button id="restart">Restart</button>
+            </div>
+
+            <div class="typing-stats">
+                <div>Time: <strong id="timeDisplay">60</strong>s</div>
+                <div>WPM: <strong id="wpm">0</strong></div>
+                <div>Accuracy: <strong id="accuracy">100</strong>%</div>
+                <div>Best Combo: <strong id="bestCombo">0</strong></div>
+            </div>
+
+            <div id="textDisplay" class="typing-display"></div>
+            <div class="typing-combo">Combo: <strong id="combo">0</strong></div>
+        </div>
+    </section>
+
+    <!-- Completion Modal -->
+    <div id="modal" class="typing-modal-backdrop">
+        <div class="typing-modal">
+            <h3>Test Complete</h3>
+
+            <div class="typing-metrics">
+                <div class="metric">WPM<strong id="mWpm">0</strong></div>
+                <div class="metric">Accuracy<strong id="mAcc">0%</strong></div>
+                <div class="metric">Time<strong id="mTime">0s</strong></div>
+                <div class="metric">Consistency<strong id="mCons">0%</strong></div>
+            </div>
+
+            <canvas id="graph" width="520" height="180"></canvas>
+
+            <div class="typing-buttons">
+                <button id="close">Close</button>
+                <button id="restartModal">Restart</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+    <script src="typingtest.js"></script>
+</body>
+</html>

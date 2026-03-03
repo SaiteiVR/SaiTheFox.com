@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Saitei's Den | Home</title>
+    <link rel="stylesheet" href="style.css">
+    <style>
+        /* --- HOME PAGE SPECIFIC STYLES --- */
+        
+        /* The New Layout Grid */
+        .scrapbook-layout {
+            display: grid;
+            grid-template-columns: 1fr minmax(auto, 800px) 1fr; /* Left, Center (Main), Right */
+            gap: 2rem;
+            max-width: 75%;
+            margin: 4rem auto 6rem auto;
+            padding: 0 2rem;
+            align-items: start;
+        }
+
+        /* --- THE SCROLLING SIDE TRACKS --- */
+        .scrapbook-col {
+            display: flex;
+            flex-direction: column;
+            gap: 4rem; 
+            /* Sticky makes sure the photos follow you if the page gets long! */
+            position: sticky;
+            top: 100px; 
+        }
+
+        .scrapbook-col.right {
+            margin-top: 4rem; /* Staggers the right side */
+        }
+
+        .scrapbook-image {
+            width: 100%;
+            aspect-ratio: 1; 
+            object-fit: cover;
+            border-radius: 20px;
+            border: 4px dashed var(--primary);
+            padding: 10px;
+            background: var(--card-bg);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+            transition: transform 0.3s, box-shadow 0.3s, border-color 0.3s;
+            margin: 0 auto;
+        }
+
+        /* Alternating tilts */
+        .scrapbook-col.left .scrapbook-image:nth-child(odd) { transform: rotate(-4deg); }
+        .scrapbook-col.left .scrapbook-image:nth-child(even) { transform: rotate(3deg); border-color: var(--secondary); }
+        .scrapbook-col.right .scrapbook-image:nth-child(odd) { transform: rotate(4deg); border-color: var(--secondary); }
+        .scrapbook-col.right .scrapbook-image:nth-child(even) { transform: rotate(-3deg); }
+
+        .scrapbook-image:hover {
+            transform: rotate(0deg) scale(1.1) !important;
+            box-shadow: 0 15px 40px rgba(255, 106, 136, 0.2);
+            z-index: 10;
+            position: relative;
+        }
+
+        /* --- THE CENTER HUB (Main Content) --- */
+        .center-feed {
+            display: flex;
+            flex-direction: column;
+            gap: 5rem; /* Spaces out the sections vertically */
+        }
+
+        /* The Welcome Header */
+        .home-header {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+        }
+
+        .hero-avatar {
+            width: 50%;
+            height: 50%;
+            aspect-ratio: 1;
+            object-fit: cover;
+            border-radius: 50%;
+            border: 5px solid white;
+            box-shadow: 0 10px 30px rgba(255, 106, 136, 0.3);
+            margin-bottom: 2rem;
+            animation: float 4s ease-in-out infinite;
+        }
+
+        .hero-title {
+            font-size: 3.5rem;
+            background: linear-gradient(to right, var(--primary), var(--secondary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 0.5rem;
+        }
+
+        .hero-subtitle {
+            font-size: 1.2rem;
+            color: var(--text-light);
+            font-weight: bold;
+        }
+
+        /* Skillset Section */
+        .skills-container {
+            width: 100%;
+        }
+
+        .skill-icon {
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+            display: inline-block;
+        }
+
+        .skills-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 1.5rem;
+        }
+
+        /* Currently Crafting Banner (Redesigned as a card) */
+        .crafting-banner {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            padding: 3.5rem 2rem;
+            color: white;
+            text-align: center;
+            border-radius: var(--radius);
+            box-shadow: 0 15px 40px rgba(255, 106, 136, 0.2);
+        }
+
+        .crafting-banner h2 {
+            color: white;
+            margin-bottom: 1.5rem;
+            font-size: 2.2rem;
+        }
+
+        .crafting-banner p {
+            font-size: 1.1rem;
+            line-height: 1.6;
+            margin-bottom: 2rem;
+            font-weight: 500;
+        }
+
+        .crafting-btn {
+            background: white;
+            color: var(--secondary);
+            padding: 12px 30px;
+            border-radius: 30px;
+            text-decoration: none;
+            font-weight: bold;
+            font-size: 1.1rem;
+            transition: transform 0.2s, box-shadow 0.2s;
+            display: inline-block;
+        }
+
+        .crafting-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+        }
+
+        /* Mobile Responsiveness */
+        @media (max-width: 1024px) {
+            .scrapbook-layout {
+                grid-template-columns: 1fr; /* Stacks everything to 1 column */
+            }
+            .scrapbook-col {
+                flex-direction: row; /* Photos scroll sideways on phones! */
+                overflow-x: auto;
+                gap: 2rem;
+                position: relative;
+                top: 0;
+            }
+            .scrapbook-col.right { margin-top: 0; }
+            .scrapbook-image { min-width: 180px; }
+            .center-feed { order: -1; } /* Pushes the main text above the photos on mobile */
+        }
+    </style>
+</head>
+<body>
+    <div class="cursor-dot"></div>
+    <div class="cursor-chaser"><img src="" alt="Saitei"></div>
+    <div id="particles"></div>
+
+    <nav class="navbar">
+        <a href="index.html" class="active">Home</a>
+        <a href="portfolio.html">Portfolio</a>
+        <a href="interests.html">Interests</a>
+        <a href="socials.html">Socials</a>
+        <a href="typingtest.html">Typing Game</a>
+        <a href="wordle.html">(Not) Wordle</a>
+    </nav>
+
+    <div class="scrapbook-layout">
+        
+        <div class="scrapbook-col left">
+            <img src="https://images.unsplash.com/photo-1516934955-a0bc35ce6754?w=600&q=80" alt="Fox" class="scrapbook-image">
+            <img src="https://images.unsplash.com/photo-1587620962725-abab7fe55159?w=600&q=80" alt="Code" class="scrapbook-image">
+            <img src="https://images.unsplash.com/photo-1542831371-29b0f74f9713?w=600&q=80" alt="Desk" class="scrapbook-image">
+        </div>
+
+        <div class="center-feed">
+            
+            <header class="home-header">
+                <img src="me.gif" alt="Saitei" class="hero-avatar">
+                <h1 class="hero-title">Saitei's Den</h1>
+                <p class="hero-subtitle">In general I just like making websites and setting up domains, so this is just one I can fuck around in and not have to be professional ^^</p>
+            </header>
+
+            <div class="skills-container">
+                <h2 style="text-align: center; margin-bottom: 2rem; color: var(--secondary);">What I Do</h2>
+                <div class="skills-grid">
+                    <div class="card" style="text-align: center;">
+                        <span class="skill-icon">💻</span>
+                        <h3>IT Admin</h3>
+                        <p style="font-size: 0.9rem;">Managing networks, hardware inventory, and keeping enterprise servers happy.</p>
+                    </div>
+                    <div class="card" style="text-align: center;">
+                        <span class="skill-icon">🎮</span>
+                        <h3>Game Dev</h3>
+                        <p style="font-size: 0.9rem;">Building VR experiences and addictive tycoon games using Unity 6 and C#.</p>
+                    </div>
+                    <div class="card" style="text-align: center;">
+                        <span class="skill-icon">🌐</span>
+                        <h3>Web Apps</h3>
+                        <p style="font-size: 0.9rem;">Designing modern websites and robust ASP.NET RMM dashboards.</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="crafting-banner">
+                <h2>Currently Crafting 🛠️</h2>
+                <p>Right now, I'm splitting my time between developing a sleek ASP.NET RMM website for inventory management, and fine-tuning the mechanics of my newest Unity C# project: a Pong-style Idle Tycoon game!</p>
+                <a href="portfolio.html" class="crafting-btn">See My Projects</a>
+            </div>
+
+        </div>
+
+        <div class="scrapbook-col right">
+            <img src="https://images.unsplash.com/photo-1552820728-8b83bb6b773f?w=600&q=80" alt="Gaming Setup" class="scrapbook-image">
+            <img src="https://images.unsplash.com/photo-1616423640778-28d1b53229bd?w=600&q=80" alt="Cozy Vibes" class="scrapbook-image">
+            <img src="https://images.unsplash.com/photo-1518481612222-68bab828fd1b?w=600&q=80" alt="Retro" class="scrapbook-image">
+        </div>
+
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>

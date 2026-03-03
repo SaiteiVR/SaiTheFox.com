@@ -1,0 +1,324 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Saitei's Den | Portfolio</title>
+    <link rel="stylesheet" href="style.css">
+    
+    <style>
+        /* --- CURSOR Z-INDEX FIX --- */
+        /* Forces the custom cursor to stay above the 20000 z-index modal */
+        .cursor-dot { z-index: 99999 !important; }
+        .cursor-chaser { z-index: 99998 !important; }
+
+        /* --- PORTFOLIO CARDS --- */
+        .card {
+            display: flex;
+            flex-direction: column;
+            height: 100%; /* Forces all cards in a row to be the same height */
+            background: var(--card-bg);
+            border-radius: var(--radius);
+            padding: 2rem;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+            transition: transform 0.3s, box-shadow 0.3s;
+            text-decoration: none; 
+            color: var(--text-main);
+        }
+
+        .port-cover {
+            width: 100%;
+            height: auto; 
+            max-height: 250px; 
+            object-fit: contain; 
+            border-radius: 15px;
+            margin-bottom: 1rem;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+        }
+
+        .tags {
+            margin-top: auto; 
+            display: flex;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+            padding-top: 1.5rem; 
+        }
+
+        .tag {
+            background: var(--bg-color);
+            color: var(--secondary);
+            padding: 6px 14px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 800;
+        }
+
+        .port-year {
+            font-size: 0.85rem;
+            color: var(--text-light);
+            margin-top: 1rem;
+            font-weight: bold;
+        }
+
+        /* --- FULL PAGE PROJECT VIEW (Federico Pian Style) --- */
+        .project-modal {
+            position: fixed;
+            top: 0; left: 0;
+            width: 100vw; 
+            height: 100vh;
+            background: var(--bg-color); 
+            z-index: 20000;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.4s ease;
+            overflow-y: auto; 
+            overflow-x: hidden;
+            display: flex;
+            justify-content: center;
+        }
+
+        .project-modal.active {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        /* 3-Column Grid */
+        .project-container {
+            width: 100%;
+            max-width: 1400px;
+            padding: 6rem 3rem;
+            display: grid;
+            grid-template-columns: 1fr 2fr 1fr; 
+            gap: 4rem;
+            position: relative;
+        }
+
+        .project-close {
+            position: fixed;
+            top: 30px;
+            right: 40px;
+            font-size: 3rem;
+            color: var(--secondary);
+            cursor: pointer;
+            z-index: 20001;
+            transition: transform 0.2s;
+            line-height: 1;
+        }
+
+        .project-close:hover {
+            transform: scale(1.1);
+        }
+
+        /* Sticky Side Columns */
+        .project-left, .project-right {
+            position: sticky;
+            top: 6rem; 
+            height: max-content;
+        }
+
+        /* Left Column Styling */
+        .project-title {
+            font-size: 3.5rem;
+            color: var(--secondary);
+            line-height: 1.1;
+            margin-bottom: 1.5rem;
+            font-weight: 800;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        .project-desc {
+            font-size: 1.1rem;
+            line-height: 1.6;
+            color: var(--text-main);
+            margin-bottom: 2rem;
+        }
+
+        .port-link-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            padding: 12px 25px;
+            background: transparent;
+            color: var(--text-main);
+            text-decoration: none;
+            border: 2px solid var(--text-main);
+            border-radius: 30px;
+            font-weight: bold;
+            transition: all 0.3s ease;
+        }
+
+        .port-link-btn:hover {
+            background: var(--text-main);
+            color: var(--bg-color);
+        }
+
+        /* Center Column Styling */
+        .project-center {
+            display: flex;
+            flex-direction: column;
+            gap: 3rem; 
+        }
+
+        .project-image {
+            width: 100%;
+            height: auto;
+            border-radius: var(--radius);
+            box-shadow: 0 15px 40px rgba(0,0,0,0.1);
+        }
+
+        /* Right Column Styling */
+        .project-meta-item {
+            margin-bottom: 2rem;
+        }
+
+        .project-meta-label {
+            font-size: 0.8rem;
+            color: var(--text-light);
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            font-weight: bold;
+            margin-bottom: 0.5rem;
+        }
+
+        .project-meta-value {
+            font-size: 1.3rem;
+            color: var(--text-main);
+            font-weight: 700;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 1024px) {
+            .project-container {
+                grid-template-columns: 1fr; 
+                gap: 3rem;
+                padding: 4rem 2rem;
+            }
+            .project-left, .project-right {
+                position: relative;
+                top: 0;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="cursor-dot"></div>
+    <div class="cursor-chaser"><img src="" alt="Saitei"></div>
+    <div id="particles"></div>
+
+    <nav class="navbar">
+        <a href="index.html">Home</a>
+        <a href="portfolio.html" class="active">Portfolio</a>
+        <a href="interests.html">Interests</a>
+        <a href="socials.html">Socials</a>
+        <a href="typingtest.html">Typing Game</a>
+        <a href="wordle.html">(Not) Wordle</a>
+    </nav>
+
+    <section class="page-content">
+        <h2>My Projects</h2>
+        
+        <div class="grid" id="portfolio-grid"></div>
+    </section>
+
+    <div class="project-modal" id="port-modal">
+        <span class="project-close" id="close-port-modal">&times;</span>
+        
+        <div class="project-container">
+            
+            <div class="project-left">
+                <h2 class="project-title" id="pm-title">Project Title</h2>
+                <p class="project-desc" id="pm-desc">Description goes here.</p>
+                <a href="#" class="port-link-btn" id="pm-link" target="_blank">VISIT PROJECT &#8599;</a>
+            </div>
+            
+            <div class="project-center" id="pm-gallery"></div>
+            
+            <div class="project-right">
+                <div class="project-meta-item">
+                    <div class="project-meta-label">Year</div>
+                    <div class="project-meta-value" id="pm-year">2026</div>
+                </div>
+                
+                <div class="project-meta-item">
+                    <div class="project-meta-label">Role</div>
+                    <div class="project-meta-value" id="pm-role">Lead Developer</div>
+                </div>
+
+                <div class="project-meta-item">
+                    <div class="project-meta-label">Tech / Skills</div>
+                    <div class="tags" id="pm-tags" style="margin-top:0; padding-top:0;"></div>
+                </div>
+            </div>
+            
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+    <script src="portfolioData.js"></script>
+
+    <script>
+        const gridContainer = document.getElementById('portfolio-grid');
+        const modal = document.getElementById('port-modal');
+        const closeBtn = document.getElementById('close-port-modal');
+        
+        const modalTitle = document.getElementById('pm-title');
+        const modalDesc = document.getElementById('pm-desc');
+        const modalLink = document.getElementById('pm-link');
+        const modalGallery = document.getElementById('pm-gallery');
+        const modalYear = document.getElementById('pm-year');
+        const modalRole = document.getElementById('pm-role');
+        const modalTags = document.getElementById('pm-tags');
+
+        closeBtn.onclick = () => modal.classList.remove('active');
+
+        portfolioData.forEach(project => {
+            const card = document.createElement('div');
+            card.classList.add('card');
+            card.style.cursor = 'pointer';
+
+            let tagsHtml = project.tags.map(tag => `<span class="tag">${tag}</span>`).join('');
+
+            card.innerHTML = `
+                <img src="${project.thumbnail}" alt="${project.title}" class="port-cover">
+                <h3>${project.title}</h3>
+                <p>${project.shortDesc}</p>
+                <div class="tags">${tagsHtml}</div>
+                <div class="port-year">${project.year}</div>
+            `;
+
+            card.onclick = () => openModal(project);
+            gridContainer.appendChild(card);
+        });
+
+        function openModal(project) {
+            modalTitle.innerText = project.title;
+            modalDesc.innerText = project.longDesc;
+            modalYear.innerText = project.year;
+            modalLink.href = project.link;
+            
+            modalRole.innerText = project.role;
+            
+            modalTags.innerHTML = project.tags.map(tag => `<span class="tag">${tag}</span>`).join('');
+            
+            modalGallery.innerHTML = '';
+            
+            if(project.gallery && project.gallery.length > 0) {
+                project.gallery.forEach(imgSrc => {
+                    const img = document.createElement('img');
+                    img.src = imgSrc;
+                    img.classList.add('project-image');
+                    modalGallery.appendChild(img);
+                });
+            } else {
+                const img = document.createElement('img');
+                img.src = project.thumbnail;
+                img.classList.add('project-image');
+                modalGallery.appendChild(img);
+            }
+
+            modal.classList.add('active');
+            modal.scrollTo(0, 0);
+        }
+    </script>
+</body>
+</html>

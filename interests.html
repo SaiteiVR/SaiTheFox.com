@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Saitei's Den | Interests</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="cursor-dot"></div>
+    <div class="cursor-chaser"><img src="" alt="Saitei"></div>
+    <div id="particles"></div>
+
+    <nav class="navbar">
+        <a href="index.html">Home</a>
+        <a href="portfolio.html">Portfolio</a>
+        <a href="interests.html" class="active">Interests</a>
+        <a href="socials.html">Socials</a>
+        <a href="typingtest.html">Typing Game</a>
+        <a href="wordle.html">(Not) Wordle</a>
+    </nav>
+
+    <section class="page-content">
+        <h2>My Library</h2>
+        <div id="library-content"></div>
+    </section>
+
+    <div class="modal-overlay" id="interest-modal">
+        <div class="modal-box">
+            <span class="modal-close" id="close-modal">&times;</span>
+            <img src="" alt="Cover" class="modal-cover" id="modal-img">
+            <h3 class="modal-title" id="modal-title">Title</h3>
+            <div class="modal-stars" id="modal-stars">★★★★★</div>
+            <p class="modal-review" id="modal-review">Review text</p>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+    <script src="interestsData.js"></script>
+
+    <script>
+        const libraryContainer = document.getElementById('library-content');
+        
+        // Modal Elements
+        const modal = document.getElementById('interest-modal');
+        const closeModal = document.getElementById('close-modal');
+        const modalImg = document.getElementById('modal-img');
+        const modalTitle = document.getElementById('modal-title');
+        const modalStars = document.getElementById('modal-stars');
+        const modalReview = document.getElementById('modal-review');
+
+        // Close Modal Logic
+        closeModal.onclick = () => modal.classList.remove('active');
+        window.onclick = (e) => {
+            // If they click the dark overlay outside the box, close it
+            if(e.target === modal) modal.classList.remove('active'); 
+        };
+
+        const categories = ["General", "Games", "Movies", "Shows", "Books"];
+
+        categories.forEach(cat => {
+            const items = interestsData.filter(item => item.category === cat);
+
+            if (items.length > 0) {
+                const section = document.createElement('div');
+                section.classList.add('category-section');
+                
+                const title = document.createElement('h3');
+                title.classList.add('category-title');
+                title.innerText = cat;
+                section.appendChild(title);
+
+                const scrollBox = document.createElement('div');
+                scrollBox.classList.add('scroll-container');
+
+                items.forEach(item => {
+                    const card = document.createElement('div');
+                    card.classList.add('interest-card');
+                    if(item.special) card.classList.add('special');
+                    
+                    // Make cursor show it's clickable
+                    card.style.cursor = 'pointer'; 
+
+                    card.innerHTML = `
+                        <img src="${item.cover}" alt="${item.name}" class="interest-cover">
+                        <div class="interest-info">
+                            <div class="interest-name">${item.name}</div>
+                            <div class="interest-note">${item.note}</div>
+                        </div>
+                    `;
+
+                    // --- NEW: CLICK EVENT TO OPEN MODAL ---
+                    card.onclick = () => {
+                        modalImg.src = item.cover;
+                        modalTitle.innerText = item.name;
+                        // Provide a fallback if review is missing
+                        modalReview.innerText = item.review || "No review written yet!"; 
+                        
+                        // Generate Stars (e.g. 3 rating = ★★★☆☆)
+                        let starHTML = "";
+                        let rating = item.rating || 0; 
+                        for(let i = 1; i <= 5; i++) {
+                            starHTML += (i <= rating) ? "★" : "☆";
+                        }
+                        modalStars.innerText = starHTML;
+
+                        // Show the modal
+                        modal.classList.add('active');
+                    };
+
+                    scrollBox.appendChild(card);
+                });
+
+                section.appendChild(scrollBox);
+                libraryContainer.appendChild(section);
+            }
+        });
+    </script>
+</body>
+</html>
+
+<style>
+    /* --- MODAL (POPUP WINDOW) --- */
+.modal-overlay {
+    position: fixed;
+    top: 0; left: 0; width: 100%; height: 100%;
+    background: rgba(0,0,0,0.6);
+    backdrop-filter: blur(5px);
+    z-index: 20000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0; /* Hidden by default */
+    pointer-events: none; /* Can't click it when hidden */
+    transition: opacity 0.3s ease;
+}
+
+/* When the active class is added by JS, it fades in */
+.modal-overlay.active {
+    opacity: 1;
+    pointer-events: auto;
+}
+
+.modal-box {
+    background: var(--card-bg);
+    border-radius: var(--radius);
+    padding: 2.5rem;
+    max-width: 450px;
+    width: 90%;
+    box-shadow: 0 15px 40px rgba(0,0,0,0.2);
+    position: relative;
+    transform: translateY(20px);
+    transition: transform 0.3s ease;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    cursor: default; /* Overrides the custom chaser cursor inside the box if you want */
+}
+
+.modal-overlay.active .modal-box {
+    transform: translateY(0); /* Slides up slightly */
+}
+
+.modal-close {
+    position: absolute;
+    top: 15px; right: 20px;
+    font-size: 2rem;
+    line-height: 1;
+    color: var(--text-light);
+    cursor: pointer;
+    transition: color 0.3s;
+}
+
+.modal-close:hover { color: var(--secondary); }
+
+.modal-cover {
+    width: 180px;
+    height: 250px;
+    object-fit: cover;
+    border-radius: 15px;
+    margin-bottom: 1rem;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.15);
+}
+
+.modal-title {
+    font-size: 1.5rem;
+    color: var(--secondary);
+    margin-bottom: 0.3rem;
+}
+
+.modal-stars {
+    color: #FFD700; /* Gold */
+    font-size: 1.3rem;
+    margin-bottom: 1rem;
+    letter-spacing: 2px;
+}
+
+.modal-review {
+    font-size: 0.95rem;
+    line-height: 1.6;
+    color: var(--text-main);
+}
+</style>
