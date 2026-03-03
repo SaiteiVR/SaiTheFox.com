@@ -4,36 +4,201 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Saitei's Den | Portfolio</title>
-    <link rel="stylesheet" href="style.css">
+    
+    <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@600;700&family=Nunito:wght@400;700&display=swap" rel="stylesheet">
     
     <style>
-        /* --- CURSOR Z-INDEX FIX --- */
-        /* Forces the custom cursor to stay above the 20000 z-index modal */
-        .cursor-dot { z-index: 99999 !important; }
-        .cursor-chaser { z-index: 99998 !important; }
+        /* --- CSS VARIABLES (Pastel / Cute Theme) --- */
+        :root {
+            --bg-pattern: #fdfbf7;
+            --paper-bg: #ffffff;
+            --primary: #ff8fab;
+            --secondary: #fb6f92;
+            --tape-color: rgba(255, 200, 221, 0.85);
+            --tape-color-alt: rgba(162, 210, 255, 0.85);
+            --text-dark: #4a4e69;
+            --text-light: #9a8c98;
+        }
 
-        /* --- PORTFOLIO CARDS --- */
+        /* --- GLOBAL RESETS & TYPOGRAPHY --- */
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Nunito', sans-serif;
+            background-color: var(--bg-pattern);
+            background-image: radial-gradient(#c9ada7 1.5px, transparent 1.5px);
+            background-size: 25px 25px;
+            color: var(--text-dark);
+            line-height: 1.6;
+            overflow-x: hidden;
+            @media (pointer: fine) { cursor: none; }
+        }
+
+        h1, h2, h3, .handwriting {
+            font-family: 'Caveat', cursive;
+        }
+
+        /* --- NAVBAR --- */
+        .navbar {
+            display: flex;
+            gap: 1rem;
+            background: var(--paper-bg);
+            padding: 15px 20px;
+            margin: 20px auto;
+            width: 90%;
+            max-width: 800px;
+            border-radius: 30px;
+            box-shadow: 4px 4px 0px rgba(0,0,0,0.05);
+            border: 2px dashed #d5bdaf;
+            overflow-x: auto;
+            white-space: nowrap;
+            scrollbar-width: none;
+        }
+        
+        .navbar::-webkit-scrollbar { display: none; }
+
+        .navbar a {
+            text-decoration: none;
+            color: var(--text-dark);
+            font-weight: 700;
+            padding: 5px 15px;
+            border-radius: 20px;
+            transition: all 0.2s;
+            @media (pointer: fine) { cursor: none; } 
+        }
+
+        .navbar a.active, .navbar a:hover {
+            background: var(--primary);
+            color: white;
+            transform: translateY(-2px);
+        }
+
+        @media (min-width: 700px) {
+            .navbar { justify-content: center; }
+        }
+
+        /* --- DESKTOP ONLY: CURSOR, CHASER, & PARTICLES --- */
+        .cursor-dot {
+            width: 12px;
+            height: 12px;
+            background-color: var(--secondary);
+            border-radius: 50%;
+            position: fixed;
+            pointer-events: none;
+            z-index: 99999 !important; /* Forces above modal */
+            transform: translate(-50%, -50%);
+            display: none; 
+        }
+
+        .cursor-chaser {
+            position: fixed;
+            width: 40px;
+            height: 40px;
+            pointer-events: none;
+            z-index: 99998 !important; /* Forces above modal */
+            display: none; 
+        }
+
+        .cursor-chaser img { width: 100%; height: 100%; object-fit: contain; }
+
+        .particle {
+            position: fixed;
+            background-color: var(--tape-color);
+            border-radius: 50%;
+            pointer-events: none;
+            z-index: 99997 !important;
+            animation: fall linear forwards;
+            display: none; 
+        }
+
+        @keyframes fall {
+            to { transform: translateY(100vh) rotate(360deg); opacity: 0; }
+        }
+
+        @media (pointer: fine) {
+            .cursor-dot, .cursor-chaser, .particle { display: block; }
+        }
+
+        /* --- PAGE CONTENT & GRID --- */
+        .page-content {
+            max-width: 1200px;
+            margin: 2rem auto;
+            padding: 1rem;
+        }
+
+        .page-content h2 {
+            font-size: 3.5rem;
+            text-align: center;
+            color: var(--secondary);
+            margin-bottom: 2rem;
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2.5rem;
+            padding: 1rem;
+        }
+
+        /* --- PORTFOLIO CARDS (Taped Scrap Style) --- */
         .card {
             display: flex;
             flex-direction: column;
-            height: 100%; /* Forces all cards in a row to be the same height */
-            background: var(--card-bg);
-            border-radius: var(--radius);
-            padding: 2rem;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.05);
-            transition: transform 0.3s, box-shadow 0.3s;
+            height: 100%; 
+            background: var(--paper-bg);
+            border-radius: 2px 15px 3px 15px / 15px 5px 25px 3px; /* Uneven scrap look */
+            padding: 1.5rem;
+            box-shadow: 3px 3px 10px rgba(0,0,0,0.08);
+            border: 1px solid #e0e0e0;
+            transition: transform 0.3s;
             text-decoration: none; 
-            color: var(--text-main);
+            color: var(--text-dark);
+            position: relative;
+            @media (pointer: fine) { cursor: none; }
+        }
+
+        /* Washi Tape for Cards */
+        .card::before {
+            content: '';
+            position: absolute;
+            top: -12px;
+            left: 50%;
+            transform: translateX(-50%) rotate(-3deg);
+            width: 90px;
+            height: 28px;
+            background: var(--tape-color);
+            box-shadow: 1px 1px 3px rgba(0,0,0,0.1);
+            z-index: 2;
+        }
+
+        .card:nth-child(even)::before {
+            background: var(--tape-color-alt);
+            transform: translateX(-50%) rotate(4deg);
+        }
+
+        .card:hover {
+            transform: translateY(-5px) scale(1.02);
+            z-index: 10;
+        }
+
+        .card h3 {
+            font-size: 2rem;
+            color: var(--primary);
+            margin-bottom: 0.5rem;
         }
 
         .port-cover {
             width: 100%;
-            height: auto; 
-            max-height: 250px; 
-            object-fit: contain; 
-            border-radius: 15px;
+            height: 200px; 
+            object-fit: cover; 
+            border-radius: 8px;
             margin-bottom: 1rem;
             box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+            background: #eee;
         }
 
         .tags {
@@ -45,28 +210,33 @@
         }
 
         .tag {
-            background: var(--bg-color);
-            color: var(--secondary);
-            padding: 6px 14px;
+            background: var(--tape-color);
+            color: var(--text-dark);
+            padding: 4px 12px;
             border-radius: 20px;
             font-size: 0.8rem;
             font-weight: 800;
         }
+        
+        .card:nth-child(even) .tag { background: var(--tape-color-alt); }
 
         .port-year {
             font-size: 0.85rem;
             color: var(--text-light);
             margin-top: 1rem;
             font-weight: bold;
+            font-family: 'Caveat', cursive;
+            font-size: 1.2rem;
         }
 
-        /* --- FULL PAGE PROJECT VIEW (Federico Pian Style) --- */
+        /* --- FULL PAGE PROJECT VIEW --- */
         .project-modal {
             position: fixed;
             top: 0; left: 0;
             width: 100vw; 
             height: 100vh;
-            background: var(--bg-color); 
+            background: rgba(253, 251, 247, 0.95); /* Frosted glass theme background */
+            backdrop-filter: blur(8px);
             z-index: 20000;
             opacity: 0;
             pointer-events: none;
@@ -82,7 +252,6 @@
             pointer-events: auto;
         }
 
-        /* 3-Column Grid */
         .project-container {
             width: 100%;
             max-width: 1400px;
@@ -103,33 +272,27 @@
             z-index: 20001;
             transition: transform 0.2s;
             line-height: 1;
+            @media (pointer: fine) { cursor: none; }
         }
 
-        .project-close:hover {
-            transform: scale(1.1);
-        }
+        .project-close:hover { transform: scale(1.1); }
 
-        /* Sticky Side Columns */
         .project-left, .project-right {
             position: sticky;
             top: 6rem; 
             height: max-content;
         }
 
-        /* Left Column Styling */
         .project-title {
             font-size: 3.5rem;
             color: var(--secondary);
             line-height: 1.1;
             margin-bottom: 1.5rem;
-            font-weight: 800;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
         }
 
         .project-desc {
             font-size: 1.1rem;
             line-height: 1.6;
-            color: var(--text-main);
             margin-bottom: 2rem;
         }
 
@@ -137,22 +300,23 @@
             display: inline-flex;
             align-items: center;
             gap: 10px;
-            padding: 12px 25px;
-            background: transparent;
-            color: var(--text-main);
+            padding: 10px 25px;
+            background: var(--secondary);
+            color: white;
             text-decoration: none;
-            border: 2px solid var(--text-main);
-            border-radius: 30px;
+            border-radius: 50px;
             font-weight: bold;
+            font-family: 'Caveat', cursive;
+            font-size: 1.5rem;
             transition: all 0.3s ease;
+            @media (pointer: fine) { cursor: none; }
         }
 
         .port-link-btn:hover {
-            background: var(--text-main);
-            color: var(--bg-color);
+            transform: scale(1.05);
+            box-shadow: 0 5px 15px rgba(251, 111, 146, 0.3);
         }
 
-        /* Center Column Styling */
         .project-center {
             display: flex;
             flex-direction: column;
@@ -162,17 +326,15 @@
         .project-image {
             width: 100%;
             height: auto;
-            border-radius: var(--radius);
-            box-shadow: 0 15px 40px rgba(0,0,0,0.1);
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            border: 5px solid white;
         }
 
-        /* Right Column Styling */
-        .project-meta-item {
-            margin-bottom: 2rem;
-        }
+        .project-meta-item { margin-bottom: 2rem; }
 
         .project-meta-label {
-            font-size: 0.8rem;
+            font-size: 0.9rem;
             color: var(--text-light);
             text-transform: uppercase;
             letter-spacing: 2px;
@@ -181,28 +343,106 @@
         }
 
         .project-meta-value {
-            font-size: 1.3rem;
-            color: var(--text-main);
-            font-weight: 700;
+            font-size: 1.5rem;
+            color: var(--primary);
+            font-family: 'Caveat', cursive;
         }
 
-        /* Responsive Design */
         @media (max-width: 1024px) {
             .project-container {
                 grid-template-columns: 1fr; 
                 gap: 3rem;
                 padding: 4rem 2rem;
             }
-            .project-left, .project-right {
-                position: relative;
-                top: 0;
-            }
+            .project-left, .project-right { position: relative; top: 0; }
+        }
+
+        /* --- MORE SCRAPBOOK ELEMENTS --- */
+        .page-header {
+            text-align: center;
+            margin-bottom: 3rem;
+            margin-top: 1rem;
+        }
+
+        .title-scrap {
+            display: inline-block;
+            background: var(--paper-bg);
+            padding: 1rem 3.5rem;
+            border-radius: 2px 255px 3px 25px / 255px 5px 225px 3px;
+            border: 2px dashed #d5bdaf;
+            box-shadow: 3px 3px 10px rgba(0,0,0,0.08);
+            transform: rotate(-2deg);
+            position: relative;
+        }
+
+        /* Tape for the title */
+        .title-scrap::before {
+            content: '';
+            position: absolute;
+            top: -15px;
+            left: 50%;
+            transform: translateX(-50%) rotate(3deg);
+            width: 130px;
+            height: 35px;
+            background: var(--tape-color-alt);
+            box-shadow: 1px 1px 3px rgba(0,0,0,0.1);
+            z-index: 2;
+        }
+
+        /* Sticky Note styling for modal */
+        .sticky-note {
+            background: #fff3b0;
+            padding: 3rem 2rem 2rem;
+            box-shadow: 5px 5px 15px rgba(0,0,0,0.1);
+            transform: rotate(2deg); /* Slight tilt to the right */
+            position: relative;
+            border-bottom-right-radius: 30px 5px; /* Curled edge effect */
+        }
+
+        .sticky-note::after {
+            content: '📌';
+            position: absolute;
+            top: 10px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 2.2rem;
+        }
+
+        /* Contrast tweak for tags inside the sticky note */
+        .sticky-note .tag {
+            background: rgba(0,0,0,0.05); 
+            border: 1px solid rgba(0,0,0,0.1);
+        }
+
+                /* Sticky Note styling for modal */
+        .sticky-note-left {
+            background: #d6ecf7 ;
+            padding: 3rem 2rem 2rem;
+            box-shadow: 5px 5px 15px rgba(0,0,0,0.1);
+            transform: rotate(-2deg); /* Slight tilt to the right */
+            position: relative;
+            border-bottom-right-radius: 30px 5px; /* Curled edge effect */
+        }
+
+        .sticky-note-left::after {
+            content: '📌';
+            position: absolute;
+            top: 10px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 2.2rem;
+        }
+
+        /* Contrast tweak for tags inside the sticky note */
+        .sticky-note-left .tag {
+            background: rgba(0,0,0,0.05); 
+            border: 1px solid rgba(0,0,0,0.1);
         }
     </style>
 </head>
 <body>
     <div class="cursor-dot"></div>
-    <div class="cursor-chaser"><img src="" alt="Saitei"></div>
+    <div class="cursor-chaser"><img src="" alt="Chaser"></div>
     <div id="particles"></div>
 
     <nav class="navbar">
@@ -214,9 +454,10 @@
         <a href="wordle.html">(Not) Wordle</a>
     </nav>
 
-    <section class="page-content">
-        <h2>My Projects</h2>
-        
+<section class="page-content">
+        <div class="page-header">
+            <h2 class="title-scrap">My Projects</h2>
+        </div>
         <div class="grid" id="portfolio-grid"></div>
     </section>
 
@@ -225,15 +466,15 @@
         
         <div class="project-container">
             
-            <div class="project-left">
+            <div class="project-left sticky-note-left">
                 <h2 class="project-title" id="pm-title">Project Title</h2>
                 <p class="project-desc" id="pm-desc">Description goes here.</p>
-                <a href="#" class="port-link-btn" id="pm-link" target="_blank">VISIT PROJECT &#8599;</a>
+                <a href="#" class="port-link-btn" id="pm-link" target="_blank">VISIT PROJECT ➔</a>
             </div>
             
             <div class="project-center" id="pm-gallery"></div>
             
-            <div class="project-right">
+            <div class="project-right sticky-note">
                 <div class="project-meta-item">
                     <div class="project-meta-label">Year</div>
                     <div class="project-meta-value" id="pm-year">2026</div>
@@ -256,7 +497,8 @@
     <script src="script.js"></script>
     <script src="portfolioData.js"></script>
 
-    <script>
+<script>
+        // --- PORTFOLIO LOGIC ONLY ---
         const gridContainer = document.getElementById('portfolio-grid');
         const modal = document.getElementById('port-modal');
         const closeBtn = document.getElementById('close-port-modal');
@@ -271,35 +513,36 @@
 
         closeBtn.onclick = () => modal.classList.remove('active');
 
-        portfolioData.forEach(project => {
-            const card = document.createElement('div');
-            card.classList.add('card');
-            card.style.cursor = 'pointer';
+        if (typeof portfolioData !== 'undefined') {
+            portfolioData.forEach(project => {
+                const card = document.createElement('div');
+                card.classList.add('card');
+                
+                let tagsHtml = project.tags.map(tag => `<span class="tag">${tag}</span>`).join('');
 
-            let tagsHtml = project.tags.map(tag => `<span class="tag">${tag}</span>`).join('');
+                card.innerHTML = `
+                    <img src="${project.thumbnail}" alt="${project.title}" class="port-cover">
+                    <h3>${project.title}</h3>
+                    <p>${project.shortDesc}</p>
+                    <div class="tags">${tagsHtml}</div>
+                    <div class="port-year">${project.year}</div>
+                `;
 
-            card.innerHTML = `
-                <img src="${project.thumbnail}" alt="${project.title}" class="port-cover">
-                <h3>${project.title}</h3>
-                <p>${project.shortDesc}</p>
-                <div class="tags">${tagsHtml}</div>
-                <div class="port-year">${project.year}</div>
-            `;
-
-            card.onclick = () => openModal(project);
-            gridContainer.appendChild(card);
-        });
+                card.onclick = () => openModal(project);
+                gridContainer.appendChild(card);
+            });
+        } else {
+            gridContainer.innerHTML = "<p style='text-align: center; width: 100%;'>Loading projects...</p>";
+        }
 
         function openModal(project) {
             modalTitle.innerText = project.title;
             modalDesc.innerText = project.longDesc;
             modalYear.innerText = project.year;
             modalLink.href = project.link;
-            
             modalRole.innerText = project.role;
             
             modalTags.innerHTML = project.tags.map(tag => `<span class="tag">${tag}</span>`).join('');
-            
             modalGallery.innerHTML = '';
             
             if(project.gallery && project.gallery.length > 0) {
