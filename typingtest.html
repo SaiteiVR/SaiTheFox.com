@@ -203,7 +203,7 @@
             font-family: 'Consolas', 'Courier New', monospace; 
             border: 1px solid rgba(0,0,0,0.05);
             box-shadow: inset 0 2px 10px rgba(0,0,0,0.02);
-            cursor: pointer; /* Suggests to mobile users that this is tappable */
+            cursor: pointer; 
         }
 
         .word { display: flex; }
@@ -249,12 +249,16 @@
         .mobile-bridge-input {
             position: absolute;
             opacity: 0;
-            top: 0;
-            left: 0;
-            height: 0;
-            width: 0;
+            bottom: 40px; /* Moved down closer to where the text actually displays */
+            left: 50%;
+            height: 1px;
+            width: 1px;
             z-index: -1;
-            pointer-events: none; /* Prevents visual interference */
+            pointer-events: none;
+            border: none;
+            outline: none;
+            padding: 0;
+            margin: 0;
         }
 
         .mobile-hint {
@@ -267,7 +271,6 @@
             animation: pulse 1.5s infinite;
         }
 
-        /* Only show the hint on touch devices */
         @media (pointer: coarse) {
             .mobile-hint { display: block; }
         }
@@ -400,7 +403,8 @@
             <div style="text-align: right; margin-bottom: 5px; color: var(--text-main); font-weight: bold;"><span id="wordCount">0 / 0</span></div>
 
             <div id="mobileHint" class="mobile-hint">Tap here to bring up keyboard</div>
-            <input type="text" id="mobileInput" class="mobile-bridge-input" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false">
+            
+            <input type="text" id="mobileInput" class="mobile-bridge-input" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" data-gramm="false" data-ms-editor="true">
 
             <div id="textDisplay" class="typing-display"></div>
             <div class="typing-combo">Combo: <strong id="combo">0</strong></div>
@@ -433,28 +437,29 @@
         const textDisplay = document.getElementById('textDisplay');
         const mobileHint = document.getElementById('mobileHint');
 
-        // Focus the hidden input when the user taps the typing area
         textDisplay.addEventListener('click', () => {
             mobileInput.focus();
-            if (mobileHint) mobileHint.style.display = 'none'; // Hide the hint
+            if (mobileHint) mobileHint.style.display = 'none'; 
         });
 
-        // Initialize with a dummy space so we can detect backspaces
         mobileInput.value = ' ';
+
+        // Stop the native mobile keydown from reaching typingtest.js (fixes double-typing)
+        mobileInput.addEventListener('keydown', (e) => {
+            e.stopPropagation(); 
+        });
 
         mobileInput.addEventListener('input', (e) => {
             const val = mobileInput.value;
             
             if (val.length === 0) {
-                // If the dummy space is gone, they hit Backspace
                 document.dispatchEvent(new KeyboardEvent('keydown', { key: 'Backspace' }));
             } else if (val.length > 1) {
-                // If the length increased, they typed a character
-                const char = val.slice(-1);
+                // Force lowercase to defeat stubborn mobile auto-capitalization!
+                const char = val.slice(-1).toLowerCase();
                 document.dispatchEvent(new KeyboardEvent('keydown', { key: char }));
             }
             
-            // Immediately reset to a dummy space for the next keystroke
             mobileInput.value = ' ';
         });
 
