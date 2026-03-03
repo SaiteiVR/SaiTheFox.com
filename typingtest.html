@@ -4,11 +4,317 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Saitei's Den | Typing Test</title>
-    <link rel="stylesheet" href="style.css">
+    
+    <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@600;700&family=Nunito:wght@400;700&display=swap" rel="stylesheet">
+    
+    <style>
+        /* --- CSS VARIABLES (Pastel / Hybrid Theme) --- */
+        :root {
+            --bg-pattern: #fdfbf7;
+            --paper-bg: #ffffff;
+            --primary: #ff8fab;
+            --secondary: #fb6f92;
+            --tape-color: rgba(255, 200, 221, 0.85);
+            --text-dark: #4a4e69;
+            --text-light: #9a8c98;
+            
+            /* Typing App Specific Variables */
+            --text-main: #4a4e69; 
+            --radius: 20px;
+            --accent: #ffc2d1; /* Soft pink highlight for current word */
+        }
+
+        /* --- GLOBAL RESETS & TYPOGRAPHY --- */
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Nunito', sans-serif;
+            background-color: var(--bg-pattern);
+            background-image: radial-gradient(#c9ada7 1.5px, transparent 1.5px);
+            background-size: 25px 25px;
+            color: var(--text-dark);
+            line-height: 1.6;
+            overflow-x: hidden;
+            @media (pointer: fine) { cursor: none; }
+        }
+
+        h1, h2, h3, .handwriting {
+            font-family: 'Caveat', cursive;
+        }
+
+        /* --- NAVBAR --- */
+        .navbar {
+            display: flex;
+            gap: 1rem;
+            background: var(--paper-bg);
+            padding: 15px 20px;
+            margin: 20px auto;
+            width: 90%;
+            max-width: 800px;
+            border-radius: 30px;
+            box-shadow: 4px 4px 0px rgba(0,0,0,0.05);
+            border: 2px dashed #d5bdaf;
+            overflow-x: auto;
+            white-space: nowrap;
+            scrollbar-width: none;
+            position: relative;
+            z-index: 20; /* Ensure navbar is above particles too */
+        }
+        
+        .navbar::-webkit-scrollbar { display: none; }
+
+        .navbar a {
+            text-decoration: none;
+            color: var(--text-dark);
+            font-weight: 700;
+            padding: 5px 15px;
+            border-radius: 20px;
+            transition: all 0.2s;
+            @media (pointer: fine) { cursor: none; } 
+        }
+
+        .navbar a.active, .navbar a:hover {
+            background: var(--primary);
+            color: white;
+            transform: translateY(-2px);
+        }
+
+        @media (min-width: 700px) {
+            .navbar { justify-content: center; }
+        }
+
+        /* --- DESKTOP ONLY: CURSOR & PARTICLES --- */
+        .cursor-dot {
+            width: 12px; height: 12px; background-color: var(--secondary);
+            border-radius: 50%; position: fixed; pointer-events: none;
+            z-index: 99999 !important; transform: translate(-50%, -50%); display: none; 
+        }
+
+        .cursor-chaser {
+            position: fixed; width: 40px; height: 40px; pointer-events: none;
+            z-index: 99998 !important; display: none; 
+        }
+
+        .cursor-chaser img { width: 100%; height: 100%; object-fit: contain; }
+
+        /* UPDATED: Z-index lowered so they fall behind the app window */
+        .particle {
+            position: fixed; background-color: var(--tape-color); border-radius: 50%;
+            pointer-events: none; 
+            z-index: 1; 
+            animation: fall linear forwards; display: none; 
+        }
+
+        @keyframes fall { to { transform: translateY(100vh) rotate(360deg); opacity: 0; } }
+        @media (pointer: fine) { .cursor-dot, .cursor-chaser, .particle { display: block; } }
+
+        /* --- TYPING TEST PAGE SPECIFIC STYLES --- */
+        .page-content {
+            max-width: 1000px; 
+            margin: 2rem auto;
+            padding: 1rem;
+        }
+
+        .page-content h2 {
+            font-size: 3.5rem;
+            text-align: center;
+            color: var(--secondary);
+            margin-bottom: 2rem;
+            line-height: 1;
+        }
+
+        .typing-page {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+
+        /* UPDATED: Position relative and higher z-index added */
+        .typing-app {
+            width: 100%;
+            background: rgba(255,255,255,0.75);
+            backdrop-filter: blur(12px);
+            border-radius: var(--radius);
+            padding: 2.5rem;
+            box-shadow: 0 15px 35px rgba(251, 111, 146, 0.15); 
+            border: 1px solid rgba(255,255,255,0.5); 
+            position: relative; /* Required for z-index to work */
+            z-index: 10; /* Placed higher than particles (1) */
+        }
+
+        .typing-controls,
+        .typing-buttons {
+            display: flex;
+            gap: 0.75rem;
+            flex-wrap: wrap;
+            margin-bottom: 1.5rem;
+            justify-content: center;
+        }
+
+        .typing-controls select,
+        .typing-controls button,
+        .typing-buttons button {
+            background: white;
+            border: 2px solid var(--primary);
+            color: var(--text-dark);
+            border-radius: 12px;
+            padding: 8px 16px;
+            font-weight: 700;
+            font-family: 'Nunito', sans-serif;
+            transition: all 0.2s;
+            @media (pointer: fine) { cursor: none; }
+        }
+
+        .typing-controls select:hover,
+        .typing-controls button:hover,
+        .typing-buttons button:hover {
+            background: var(--primary);
+            color: white;
+            transform: translateY(-2px);
+        }
+
+        .typing-stats {
+            display: flex;
+            gap: 2rem;
+            margin-bottom: 1rem;
+            color: var(--text-main);
+            flex-wrap: wrap;
+            justify-content: space-between;
+            font-size: 1.1rem;
+            padding: 0 10px;
+        }
+
+        /* --- TYPING DISPLAY (MONKEYTYPE STYLE) --- */
+        .typing-display {
+            background: rgba(255,255,255,0.8);
+            border-radius: 15px;
+            padding: 1.5rem 2rem;
+            min-height: 160px;
+            font-size: 1.6rem;
+            line-height: 1.6;
+            user-select: none;
+            flex-wrap: wrap;
+            align-content: flex-start;
+            position: relative;
+            color: #94a3b8; 
+            font-family: 'Consolas', 'Courier New', monospace; 
+            border: 1px solid rgba(0,0,0,0.05);
+            box-shadow: inset 0 2px 10px rgba(0,0,0,0.02);
+        }
+
+        .word { display: flex; }
+        .char { transition: color 0.1s ease; }
+        .char.correct { color: var(--text-main); }
+        .char.incorrect { color: #ff4d4d; }
+        .char.extra { color: #b91c1c; opacity: 0.9; }
+
+        /* Smooth Caret */
+        #caret {
+            position: absolute;
+            width: 3px;
+            height: 1.8rem;
+            background-color: var(--secondary);
+            border-radius: 2px;
+            transition: left 0.1s ease, top 0.1s ease;
+            animation: blink 1s infinite;
+            pointer-events: none;
+            margin-top: 4px;
+        }
+
+        @keyframes blink {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0; }
+        }
+
+        .typing-display span.current {
+            background: var(--accent);
+            border-radius: 4px;
+        }
+
+        .typing-display span.correct { color: #22c55e; }
+        .typing-display span.incorrect { color: #ff4d4d; text-decoration: underline; }
+
+        .typing-combo {
+            margin-top: 1rem;
+            text-align: center;
+            font-size: 1.2rem;
+            color: var(--text-light);
+        }
+
+        /* --- MODAL SPECIFIC STYLES --- */
+        .typing-modal-backdrop {
+            position: fixed;
+            inset: 0;
+            background: rgba(253, 251, 247, 0.9);
+            backdrop-filter: blur(5px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            pointer-events: none;
+            transition: 0.3s;
+            z-index: 20000;
+        }
+
+        .typing-modal-backdrop.show {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        .typing-modal {
+            background: white;
+            border-radius: var(--radius);
+            padding: 3rem;
+            max-width: 600px;
+            width: 95%;
+            box-shadow: 0 15px 40px rgba(0,0,0,0.1);
+            border: 1px solid #e0e0e0;
+            text-align: center;
+            @media (pointer: fine) { cursor: none; }
+        }
+
+        .typing-modal h3 {
+            font-size: 2.5rem;
+            color: var(--secondary);
+            margin-bottom: 1.5rem;
+            line-height: 1;
+        }
+
+        .typing-metrics {
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+            justify-content: center;
+            margin: 1.5rem 0;
+        }
+
+        .metric {
+            background: rgba(251, 111, 146, 0.1);
+            padding: 15px;
+            border-radius: 12px;
+            min-width: 110px;
+            text-align: center;
+            border: 1px dashed var(--primary);
+        }
+
+        .metric strong {
+            display: block;
+            font-size: 1.8rem;
+            color: var(--text-dark);
+            font-family: 'Caveat', cursive;
+        }
+        
+        #graph { margin: 1rem auto; display: block; }
+    </style>
 </head>
 <body>
     <div class="cursor-dot"></div>
-    <div class="cursor-chaser"><img src="" alt="Saitei"></div>
+    <div class="cursor-chaser"><img src="" alt="Chaser"></div>
     <div id="particles"></div>
 
     <nav class="navbar">
@@ -59,12 +365,13 @@
                 <div>Best Combo: <strong id="bestCombo">0</strong></div>
             </div>
 
+            <div style="text-align: right; margin-bottom: 5px; color: var(--text-main); font-weight: bold;"><span id="wordCount">0 / 0</span></div>
+
             <div id="textDisplay" class="typing-display"></div>
             <div class="typing-combo">Combo: <strong id="combo">0</strong></div>
         </div>
     </section>
 
-    <!-- Completion Modal -->
     <div id="modal" class="typing-modal-backdrop">
         <div class="typing-modal">
             <h3>Test Complete</h3>
@@ -85,7 +392,72 @@
         </div>
     </div>
 
-    <script src="script.js"></script>
+    <script>
+        const IMG_SITTING = "https://cdn-icons-png.flaticon.com/512/616/616430.png"; 
+        const IMG_RUNNING = "https://cdn-icons-png.flaticon.com/512/616/616408.png"; 
+        const MAX_SPEED = 8; 
+
+        const cursorDot = document.querySelector('.cursor-dot');
+        const chaser = document.querySelector('.cursor-chaser');
+        const chaserImg = chaser.querySelector('img');
+        const particleContainer = document.getElementById('particles');
+
+        let mouseX = window.innerWidth / 2; let mouseY = window.innerHeight / 2;
+        let chaserX = window.innerWidth / 2; let chaserY = window.innerHeight / 2;
+        let isRunning = false;
+
+        const isDesktop = () => window.matchMedia("(pointer: fine)").matches;
+
+        if (isDesktop()) {
+            document.addEventListener('mousemove', (e) => {
+                mouseX = e.clientX; mouseY = e.clientY;
+                cursorDot.style.left = mouseX + 'px'; cursorDot.style.top = mouseY + 'px';
+            });
+        }
+
+        function animate() {
+            if (isDesktop()) {
+                let dx = mouseX - chaserX; let dy = mouseY - chaserY;
+                let distance = Math.sqrt(dx*dx + dy*dy);
+
+                if (distance > 5) {
+                    let angle = Math.atan2(dy, dx); let degrees = angle * (180 / Math.PI); 
+                    let vx = dx * 0.1; let vy = dy * 0.1;
+
+                    let velocity = Math.sqrt(vx*vx + vy*vy);
+                    if (velocity > MAX_SPEED) {
+                        let ratio = MAX_SPEED / velocity;
+                        vx *= ratio; vy *= ratio;
+                    }
+
+                    chaserX += vx; chaserY += vy;
+                    chaser.style.transform = `translate(${chaserX}px, ${chaserY}px) rotate(${degrees + 90}deg) translate(-50%, -50%)`;
+
+                    if (!isRunning) { chaserImg.src = IMG_RUNNING; isRunning = true; }
+                } else {
+                    if (isRunning) {
+                        chaserImg.src = IMG_SITTING; isRunning = false;
+                        chaser.style.transform = `translate(${chaserX}px, ${chaserY}px) rotate(0deg) translate(-50%, -50%)`;
+                    }
+                }
+            }
+            requestAnimationFrame(animate);
+        }
+        animate();
+
+        if(particleContainer && isDesktop()) {
+            function createParticle() {
+                const p = document.createElement('div'); p.classList.add('particle');
+                const size = Math.random() * 10 + 5 + 'px';
+                p.style.width = size; p.style.height = size;
+                p.style.left = Math.random() * 100 + 'vw'; p.style.top = '-20px'; 
+                p.style.animationDuration = Math.random() * 5 + 5 + 's';
+                particleContainer.appendChild(p); setTimeout(() => p.remove(), 10000);
+            }
+            setInterval(createParticle, 600);
+        }
+    </script>
+    
     <script src="typingtest.js"></script>
 </body>
 </html>
