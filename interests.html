@@ -205,6 +205,13 @@
             border: 1px solid #f0f0f0;
         }
 
+        .music-cover {
+            width: 100%;
+            object-fit: cover;
+            background: #eee;
+            border: 1px solid #f0f0f0;
+        }
+
         .interest-info { text-align: center; margin-top: 15px; }
 
         .interest-name {
@@ -428,7 +435,7 @@
             if(e.target === modal) modal.classList.remove('active'); 
         };
 
-        const categories = ["General", "Games", "Movies", "Shows", "Books"];
+        const categories = ["General", "Games", "Movies", "Shows", "Books", "Music"];
 
         if (typeof interestsData !== 'undefined') {
             categories.forEach(cat => {
@@ -453,6 +460,7 @@
                         
                         card.style.cursor = 'pointer'; 
 
+                        if (cat != "Music") {
                         card.innerHTML = `
                             <img src="${item.cover}" alt="${item.name}" class="interest-cover">
                             <div class="interest-info">
@@ -460,6 +468,15 @@
                                 <div class="interest-note">${item.note}</div>
                             </div>
                         `;
+                        } else {
+                            card.innerHTML = `
+                                <img src="${item.cover}" alt="${item.name}" class="music-cover">
+                                <div class="interest-info">
+                                    <div class="interest-name">${item.name}</div>
+                                    <div class="interest-note">${item.note}</div>
+                                </div>
+                            `;
+                        }
 
                         card.onclick = () => {
                             modalImg.src = item.cover;
